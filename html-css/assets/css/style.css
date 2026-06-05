@@ -1,8 +1,56 @@
 /* ========================================================= *
     Base styles
  * ========================================================= */
-html, body {
-  height: 100vh;
-  width: 100vw;
+:root {
+  --base-font-size: 16px;
 }
 
+ html, body {
+  height: 100vh;
+  width: 100vw;
+  font-size: var(--base-font-size);
+  box-sizing: content-box;
+}
+
+/* ========================================================= *
+    Header
+ * ========================================================= */
+.header {
+  height: 3em;
+  width: 100%;
+}
+.header-nav {
+  display: flex;
+  width: 100%;
+}
+.nav-menubar {
+  display: flex;
+  width: 100%;
+  margin: 0;
+}
+.nav-menuitem {
+  min-width: 4em;
+  flex-grow: 1;
+}
+.nav-menuitem.snap-left {
+  justify-content: flex-start;
+}
+.nav-menuitem.padding {
+  flex-grow: 999;
+}
+.nav-menuitem.snap-right {
+  justify-content: flex-end;
+}
+.nav-menulink {
+  text-decoration: none;
+  color: inherit;
+  display: inline-block;
+  height: 100%;
+  width: 100%;
+  padding: 5px;
+  text-align: center;
+  margin-bottom: calc(1em - 1.5em);
+}
+.nav-menulink.logo {
+  font-size: 1.5rem;
+}
