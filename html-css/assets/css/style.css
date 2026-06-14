@@ -1,6 +1,6 @@
-/* ========================================================= *
-    Base styles
- * ========================================================= */
+/* ========================================================= */
+/*   Base styles                                             */
+/* ========================================================= */
 :root {
   --base-font-size: 16px;
 }
@@ -12,15 +12,23 @@
   box-sizing: content-box;
 }
 
-/* ========================================================= *
-    Header
- * ========================================================= */
+main {
+  padding: 1em;
+}
+
+/* ========================================================= */
+/*   Header                                                  */
+/* ========================================================= */
 .header {
   height: 3em;
   width: 100%;
+  background: #555;
+  border-bottom: solid 0.25em #333;
+  color: #fff;
 }
 .header-nav {
   display: flex;
+  height: 100%;
   width: 100%;
 }
 .nav-menubar {
@@ -29,6 +37,7 @@
   margin: 0;
 }
 .nav-menuitem {
+  position: relative;
   min-width: 4em;
   flex-grow: 1;
 }
@@ -41,16 +50,66 @@
 .nav-menuitem.snap-right {
   justify-content: flex-end;
 }
-.nav-menulink {
-  text-decoration: none;
-  color: inherit;
+.nav-menuitem.padding::before {
+  display: none;
+}
+.nav-menuitem:not(.logo)::before {
+  content: "";
+  position: absolute;
   display: inline-block;
+  top: 0;
+  left: 0;
   height: 100%;
   width: 100%;
+  opacity: 0;
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.25) 0%, rgba(125, 125, 125, 0.1) 80%, rgba(75, 75, 75, 0) 100%);
+  mask-image: radial-gradient(circle, black 0%, transparent 80%);
+  backdrop-filter: blur(20px);
+  z-index: 1;
+  transition: opacity 0.5s ease;
+}
+.nav-menuitem:not(.logo):hover::before {
+  opacity: 1;
+  transition: opacity 0.5s ease;
+}
+.nav-menulink {
+  position: relative;
+  text-decoration: none;
+  color: inherit;
+  display: flex;
+  height: 100%;
+  width: 100%;
+  min-width: 6em;
   padding: 5px;
-  text-align: center;
-  margin-bottom: calc(1em - 1.5em);
+  justify-content: center;
+  align-items: center;
+  z-index: 2;
 }
-.nav-menulink.logo {
+.logo .nav-menulink {
   font-size: 1.5rem;
+  justify-content: flex-start;
+  padding: 0.25em 0.5em;
 }
+
+/* ========================================================= */
+/*   Tab                                                     */
+/* ========================================================= */
+.tab {
+  position: relative;
+}
+.tab-nav {
+  padding: 0;
+  margin: 0;
+  list-style: none;
+  display: flex;
+}
+.tab-nav-item {
+  padding: 0.25em 0.5em;
+  border: solid 1px #aaa;
+  border-radius: 0.5em 0.5em 0 0 ;
+}
+
+/* ========================================================= */
+/*   Header                                                  */
+/* ========================================================= */
+
