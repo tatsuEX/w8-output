@@ -73,11 +73,23 @@
 
   </main>
 
+  <div class="toast-container" id="js-toast">
+  </div>
+  <template id="toast-template" class="toast-template">
+    <div class="toast" data-type="">
+      <div class="toast-summary"></div>
+      <div class="toast-message"></div>
+    </div>
+  </template>
+
   <footer>
 
   </footer>
 
-  <script>
+  <script type="module">
+    import { createToast } from '/html-css/assets/js/toast.mjs';
+
+    window.$Toast = createToast('js-toast', 'toast-template');
   </script>
 </body>
 </html>

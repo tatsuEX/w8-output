@@ -273,3 +273,50 @@ h3.headline {
   border-top: solid 1px #aaa;
   border-image: linear-gradient(to right, transparent, #aaa 5%, #aaa 95%, transparent) 1;
 }
+
+/* ========================================================= */
+/*   Toast                                                   */
+/* ========================================================= */
+.toast-container {
+  position: fixed;
+  height: calc(100vh - 4em);
+  width: (100vw);
+  max-width: 20em;
+  top: 4em;
+  right: 0;
+  z-index: 999;
+  padding: 0.25em 0.5em;
+}
+.toast {
+  position: relative;
+  left: 0;
+  width: 18em;
+  border-radius: 0.25em;
+  padding: 0.25em 0.5em;
+  opacity: 0.8;
+  box-shadow: #333 0.25em 0.25em 0.25em;
+  margin-bottom: 0.5em;
+  opacity: 0;
+}
+.toast[data-type=error] {
+  background: #e89;
+}
+.toast[data-type=warn] {
+  background: #ec8;
+}
+.toast[data-type=info] {
+  background: #8ac;
+}
+.toast-summary {
+  font-weight: bold;
+}
+
+.ui-appear {
+  opacity: 1;
+  transition: opacity 0.25s;
+}
+.ui-vanish {
+  opacity: 0;
+  transition: opacity 0.5s;
+}
+
