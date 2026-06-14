@@ -35,11 +35,102 @@
 
   <main>
 
+    <!-- タブUI -->
+    <div class="tab">
+      <ul class="tab-nav">
+        <li class="tab-nav-item active" data-item-index="0">
+          <a href="javascript:void(0)" class="tab-nav-link">1. 横 4 x 縦 4</a>
+        </li>
+        <li class="tab-nav-item" data-item-index="1">
+          <a href="javascript:void(0)" class="tab-nav-link">2. 横 2 x 縦 2</a>
+        </li>
+        <li class="tab-nav-item" data-item-index="2">
+          <a href="javascript:void(0)" class="tab-nav-link">3. 横 6 x 縦 1</a>
+        </li>
+      </ul>
+      <div class="tab-contents">
+        <div class="tab-content active" data-item-index="0">
+          <div class="flex-container">
+            <div class="row">
+              <div class="box">01</div>
+              <div class="box">02</div>
+              <div class="box">03</div>
+              <div class="box">04</div>
+            </div>
+            <div class="row">
+              <div class="box">05</div>
+              <div class="box">06</div>
+              <div class="box">07</div>
+              <div class="box">08</div>
+            </div>
+            <div class="row">
+              <div class="box">09</div>
+              <div class="box">10</div>
+              <div class="box">11</div>
+              <div class="box">12</div>
+            </div>
+            <div class="row">
+              <div class="box">13</div>
+              <div class="box">14</div>
+              <div class="box">15</div>
+              <div class="box">16</div>
+            </div>
+          </div>
+        </div>
+        
+        <div class="tab-content" data-item-index="1">
+          <div class="flex-container">
+            <div class="row">
+              <div class="box">01</div>
+              <div class="box">02</div>
+            </div>
+            <div class="row">
+              <div class="box">03</div>
+              <div class="box">04</div>
+            </div>
+          </div>
+        </div>
+        
+        <div class="tab-content" data-item-index="2">
+          <div class="flex-container">
+            <div class="row">
+              <div class="box">01</div>
+              <div class="box">02</div>
+              <div class="box">03</div>
+              <div class="box">04</div>
+              <div class="box">05</div>
+              <div class="box">06</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
   </main>
 
   <footer>
 
   </footer>
 
+  <script>
+    (() => {
+      const $tabItems = document.querySelectorAll('.tab-nav-item');
+      const $tabContents = document.querySelectorAll('.tab-contents > .tab-content');
+
+      const tabClickHandler = (e) => {
+        // タブヘッダとコンテンツからactive classを除去
+        [...$tabItems, ...$tabContents].forEach((el) => el.classList.remove('active'));
+        // clickイベントのターゲットがa.tab-nav-linkになるためparentのli.tab-nav-itemを取得
+        const $targetTab = e.target.closest('.tab-nav-item');
+        $targetTab.classList.add('active');
+        // clickターゲットの要素番号を取得
+        const idx = parseInt($targetTab.dataset.itemIndex);
+        $tabContents[idx].classList.add('active');
+      };
+
+      // タブヘッダにクリックイベント処理を登録
+      [...$tabItems].forEach((el) => el.addEventListener('click', tabClickHandler));
+    })();
+  </script>
 </body>
 </html>
