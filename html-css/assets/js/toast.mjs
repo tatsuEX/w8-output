@@ -1,3 +1,7 @@
+/**
+ * Toastのメッセージ種別
+ * readonly Proxy
+ */
 const $ToastType = new Proxy({
     Error: 'error',
     Warn: 'warn',
@@ -15,7 +19,7 @@ const $ToastType = new Proxy({
 });
 
 /**
- * 
+ * 画面右上部にメッセージを表示する
  */
 class ToastUI {
   #id;

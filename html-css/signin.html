@@ -57,7 +57,7 @@
             </div>
             
             <div class="form-content">
-              <button class="btn submit-btn" type="submit">Sign in</button>
+              <button id="btnSignin" class="btn submit-btn" type="button">Sign in</button>
             </div>
 
             <div class="form-content">
@@ -88,8 +88,28 @@
 
   <script type="module">
     import { createToast } from '/html-css/assets/js/toast.mjs';
+    import { loginContext } from '../database/assets/js/authn.mjs';
 
     window.$Toast = createToast('js-toast', 'toast-template');
+
+    $Toast.info(`Hello, ${loginContext.username} さん！`, loginContext.isLogin);
+
+    /**
+     * Sign in ボタン押下時処理
+     */
+    document.getElementById('btnSignin').addEventListener('click', async (e) => {
+      console.log('### btn click ###', e);
+      const email = document.getElementById('email').value;
+      const password = document.getElementById('password').value;
+      
+      try {
+        await loginContext.signin(email, password);
+      } catch(err) {
+        $Toast.error(err.message);
+      }
+      
+      console.log(localStorage);
+    });
   </script>
 </body>
 </html>
