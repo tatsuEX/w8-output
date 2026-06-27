@@ -39,13 +39,77 @@
       Sign up
     </h1>
 
+    <form action="#posted" class="form" method="post">
+
+      <section class="section">
+        <div class="flex-container">
+          <h1 class="section-headline">Welcome! Sign up to create your account</h1>
+
+          <div class="column">
+            <div class="form-content">
+              <label for="username" class="form-label">Your name</label>
+              <input id="username" type="text" class="form-input"/>
+            </div>
+
+            <div class="form-content">
+              <label for="email" class="form-label">Your email</label>
+              <input id="email" type="email" class="form-input"/>
+            </div>
+            
+            <div class="form-content">
+              <label for="email" class="form-label">Password</label>
+              <input id="password" type="password" class="form-input">
+            </div>
+            
+            <div class="form-content">
+              <button id="btnSignup" class="btn submit-btn" type="button">Sign up</button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+    </form>
+
   </main>
+
+  <div class="toast-container" id="js-toast">
+  </div>
+  <template id="toast-template" class="toast-template">
+    <div class="toast" data-type="">
+      <div class="toast-summary"></div>
+      <div class="toast-message"></div>
+    </div>
+  </template>
 
   <footer>
 
   </footer>
 
-  <script>
+  <script type="module">
+    import { createToast } from '/html-css/assets/js/toast.mjs';
+    import { loginContext } from '../database/assets/js/authn.mjs';
+
+    window.$Toast = createToast('js-toast', 'toast-template');
+
+    /**
+     * Sign up ボタン押下時処理
+     */
+    document.getElementById('btnSignup').addEventListener('click', async (e) => {
+      console.log('### btn click ###', e);
+      const username = document.getElementById('username').value;
+      const email = document.getElementById('email').value;
+      const password = document.getElementById('password').value;
+      
+      await loginContext.signup(username, email, password);
+
+      $Toast.info(`ようこそ, ${loginContext.username} さん！`);
+
+      if (loginContext.isLogin) {
+        setTimeout(() => {
+          location.href = 'index.html';
+        }, 200);
+      }
+    });
   </script>
 </body>
 </html>

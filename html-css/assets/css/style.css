@@ -320,3 +320,7 @@ h3.headline {
   transition: opacity 0.5s;
 }
 
+.ui-state-disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
