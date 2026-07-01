@@ -18,16 +18,17 @@
         </li>
         <li class="nav-menuitem padding">
         </li>
-        <li class="nav-menuitem snap-right">
-          <a href="" class="nav-menulink">
-            a
-          </a>
+        <li class="nav-menuitem snap-right" data-authorized="false">
+          <a href="" class="nav-menulink">Special</a>
         </li>
         <li class="nav-menuitem snap-right active">
           <a href="/html-css/signin.html" class="nav-menulink">Sign in</a>
         </li>
         <li class="nav-menuitem snap-right">
           <a href="/html-css/signup.html" class="nav-menulink">Sign up</a>
+        </li>
+        <li class="nav-menuitem snap-right" data-authorized="false">
+          <span id="signoutLink" class="nav-menulink">Sign out</span>
         </li>
       </ul>
     </nav>
@@ -115,11 +116,6 @@
       }
 
     }
-
-    window.debug = () => {
-      console.log(loginContext);
-      return loginContext;
-    };
 
     /**
      * Sign in ボタン押下時処理

@@ -56,6 +56,9 @@ main {
   border-bottom: solid 3px transparent;
   border-image: linear-gradient(to right, transparent, #eee 35%, #eee 65%, transparent) 1;
 }
+.nav-menuitem[data-authorized=false] {
+  display: none;
+}
 .nav-menuitem.padding::before {
   display: none;
 }

@@ -18,10 +18,8 @@
         </li>
         <li class="nav-menuitem padding">
         </li>
-        <li class="nav-menuitem snap-right">
-          <a href="" class="nav-menulink">
-              a
-          </a>
+        <li class="nav-menuitem snap-right" data-authorized="false">
+          <a href="" class="nav-menulink">Special</a>
         </li>
         <li class="nav-menuitem snap-right">
           <a href="/html-css/signin.html" class="nav-menulink">Sign in</a>
@@ -29,7 +27,7 @@
         <li class="nav-menuitem snap-right">
           <a href="/html-css/signup.html" class="nav-menulink">Sign up</a>
         </li>
-        <li class="nav-menuitem snap-right">
+        <li class="nav-menuitem snap-right" data-authorized="false">
           <span id="signoutLink" class="nav-menulink">Sign out</span>
         </li>
       </ul>
@@ -157,11 +155,22 @@
 
     window.$Toast = createToast('js-toast', 'toast-template');
 
-    loginContext.isLogin;
+    // 認可 : Sign in 済みの場合は会員メニューを表示
+    window.onload = () => {
+      [...document.querySelectorAll('[data-authorized]')].forEach((el) => {
+        el.dataset.authorized = loginContext.isLogin;
+      });
+    };
+
     $Toast.info(`こんにちは, ${loginContext.username} さん！`);
 
     document.getElementById('signoutLink').addEventListener('click', (e) => {
-      loginContext.signout();
+      // 認可 : Sign out したので会員メニューを非表示
+      loginContext.signout(() => {
+        [...document.querySelectorAll('[data-authorized]')].forEach((el) => {
+          el.dataset.authorized = false;
+        });
+      });
       location.href = 'signin.html#ssoDisabled';
     });
   </script>

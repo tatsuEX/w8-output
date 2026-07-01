@@ -219,11 +219,8 @@ export class LoginContext {
   async signin(email, password) {
     console.log('### LoginContext signin ###');
     this.#loginUser = this.#userCache;
-    if (!!!(this.#loginUser)) {
-      return;
-    }
 
-    const [user, ...otherUsers_should_be_empty] = this.#users.filter((u) => u.email === email);
+    const [user, ...otherUsers_should_be_empty] = this.#users?.filter((u) => u.email === email);
     
     // assertion
     if ((otherUsers_should_be_empty || []).length > 0) {
@@ -260,9 +257,16 @@ export class LoginContext {
     this.#updateUser(user);
   }
 
-  signout() {
+  signout(callback, ...args) {
     this.#loginUser = null;
-    location.href = 'signin.html#ssoDisabled';
+
+    new Promise((res, rej) => {
+      res(callback(args));
+    })
+    .then((a) => {
+      location.href = 'signin.html#ssoDisabled';
+    });
+
   }
 
   
