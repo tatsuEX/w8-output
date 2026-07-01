@@ -88,24 +88,38 @@
 
   <script type="module">
     import { createToast } from '/html-css/assets/js/toast.mjs';
-    import { loginContext } from '../database/assets/js/authn.mjs';
+    import { LoginContext } from '../database/assets/js/authn.mjs';
+    import { query2Map } from '../database/assets/js/textUtils.mjs';
+
+    const loginContext = new LoginContext();
 
     window.$Toast = createToast('js-toast', 'toast-template');
 
+    const hashParams = query2Map(location.hash);
+
     if (loginContext.isLogin) {
       document.getElementById('email').value = loginContext.email;
-      document.getElementById('password').value = '**********';
+      $Toast.info('セキュリティのためパスワードは保存していません');
+      
+      if (loginContext.isSsoEnabled && !hashParams.ssoDisabled) {
+        document.getElementById('password').value = '**********';
+        const $signinBtn = document.getElementById('btnSignin');
+        $signinBtn.disabled = true;
+        $signinBtn.classList.add('ui-state-disabled');
+  
+        $Toast.info(`こんにちは, ${loginContext.username} さん\n3秒後にTOPページに遷移します`);
+  
+        setTimeout(() => {
+          location.href = 'index.html';
+        }, 3000);
+      }
 
-      const $signinBtn = document.getElementById('btnSignin');
-      $signinBtn.disabled = true;
-      $signinBtn.classList.add('ui-state-disabled');
-
-      $Toast.info(`こんにちは, ${loginContext.username} さん\n3秒後にTOPページに遷移します`);
-
-      setTimeout(() => {
-        location.href = 'index.html';
-      }, 3000);
     }
+
+    window.debug = () => {
+      console.log(loginContext);
+      return loginContext;
+    };
 
     /**
      * Sign in ボタン押下時処理
@@ -115,13 +129,16 @@
       const email = document.getElementById('email').value;
       const password = document.getElementById('password').value;
       
-      try {
-        await loginContext.signin(email, password);
-      } catch(err) {
-        $Toast.error(err.message);
-      }
+      loginContext.signin(email, password)
+        .then((res) => {
+          $Toast.info(`こんにちは、${res.username} さん`);
+          console.log(res);
+          location.href = 'index.html';
+        })
+        .catch((err) => {
+          $Toast.error(err.message);
+        });
       
-      console.log(localStorage);
     });
   </script>
 </body>

@@ -19,34 +19,76 @@ const PRIVATE_CONSTRUCTOR_KEY = Symbol();
  * private ユーザ情報
  */
 class User {
+  
+  /**
+   ユーザ名
+   * @type {string}
+   */
   #username;
+  
+  /**
+   * Eメール
+   * @type {string}
+   */
   #email;
+  
+  /**
+   * パスワード (ハッシュ)
+   * @type {string}
+   */
   #password;
+  
+  /**
+   * SSOが有効
+   * @type {boolean}
+   */
+  #enableSso;
 
   /**
    * (private) static createを使用してください
-   * @param {*} username 
-   * @param {*} email 
-   * @param {*} password 
-   * @param {*} symbol 
+   * @param {string} username ユーザ名
+   * @param {string} email Eメール
+   * @param {string} password_hash パスワードハッシュ
+   * @param {boolean} enableSso SSO設定が有効
+   * @param {Symbol} symbol 
    * @returns 
    * @see this.create
    */
-  constructor(username = 'ゲスト', email = 'guest@sample.com', password = '', symbol) {
+  constructor(username = 'ゲスト', email = 'guest@sample.com', password_hash = '', enableSso, symbol) {
     if (symbol !== PRIVATE_CONSTRUCTOR_KEY) {
       return new Error('static createからのみインスタンス化可能にしたいです');
     }
     this.#username = username;
     this.#email = email;
-    this.#password = password;
+    this.#password = password_hash;
+    this.#enableSso = enableSso;
   }
 
+  
+  /**
+   * ユーザ名
+   * @readonly
+   */
   get username() {
     return this.#username;
   }
 
+  
+  /**
+   * Eメール
+   * @readonly
+   */
   get email() {
     return this.#email;
+  }
+
+  
+  /**
+   * SSO設定が有効
+   * @readonly
+   */
+  get isSsoEnabled() {
+    return this.#enableSso;
   }
 
   /**
@@ -56,37 +98,68 @@ class User {
   publish() {
     return {
       username: this.username,
-      email: this.email
+      email: this.email,
+      password_hash: this.#password,
+      sso_enabled: this.isSsoEnabled
     }
   }
 
   /**
    * ユーザ情報を作成
    * passwordは、本メソッド内でハッシュ化されます
-   * @param {*} username ユーザ名
-   * @param {*} email Eメール
-   * @param {*} password パスワード
+   * @param {string} username ユーザ名
+   * @param {string} email Eメール
+   * @param {string} password rawパスワード
    * @returns 
    */
-  static async create(username = 'ゲスト', email = 'guest@sample.com', password = '') {
+  static async create(username = 'ゲスト', email = 'guest@sample.com', password = '', enableSso) {
     const password_hash = await hash(password + SALT);
 
     // NOTE: passwordはハッシュ化してから保存する。が、constructorを非同期にできないのでstatic factoryメソッドを必ず使用すること
-    return new User(username, email, password_hash, PRIVATE_CONSTRUCTOR_KEY);
+    return new User(username, email, password_hash, enableSso, PRIVATE_CONSTRUCTOR_KEY);
   }
 
   /**
-   * 
-   * @param {*} password 
-   * @returns 
+   * JSONまたはobjectからUserインスタンスを復元する
+   * @param {string | object} userInfo ユーザ情報
+   * @returns Userインスタンス
    */
-  verify(password) {
-    if (this.#password === password) {
-      return;
+  static restore(userInfo) {
+    console.log(userInfo);
+    if (userInfo == null) {
+      return null;
     }
-    throw new Error('signin is failed');
+    let _userInfo = null;
+    if (typeof userInfo === 'string') {
+      _userInfo = localStorage.loginUser != null ? JSON.parse(localStorage.loginUser) : null;
+      if (_userInfo == null) {
+        return null;
+      }
+    } else if (Object.prototype.toString.call(userInfo).slice(1, -8) === 'object') {
+      const { username, email, password_hash, sso_enabled } = userInfo;
+      _userInfo = { username, email, password_hash, sso_enabled };
+    }
+    const user = new User(_userInfo?.username, _userInfo?.email, _userInfo?.password_hash, _userInfo?.sso_enabled || false, PRIVATE_CONSTRUCTOR_KEY);
+    return user;
   }
 
+  /**
+   * パスワード検証
+   * @param {string} password_hash ハッシュ化されたパスワード
+   * @returns 
+   */
+  verify(password_hash) {
+    if (this.#password === password_hash) {
+      return;
+    }
+    throw new Error('サインインに失敗しました');
+  }
+
+  /**
+   * ユーザインスタンスの一致判定
+   * @param {User} other 
+   * @returns 
+   */
   equals(other) {
     if (this == null || other == null) {
       return false;
@@ -102,15 +175,24 @@ class User {
  * public ログインコンテキスト
  */
 export class LoginContext {
+  
+  /**
+   * Description placeholder
+   *
+   * @type {User}
+   */
   #loginUser = null;
+  #userCache = null;
   #users;
 
+  /**
+   * LocalStorageのユーザ情報を更新する
+   * @param {User} user 
+   */
   #updateUser = (user) => {
     this.#loginUser = user;
     // privateメンバが展開されないため、公開用オブジェクトを複製する
-    localStorage.sso = JSON.stringify({
-      loginUser: user.publish()
-    });
+    localStorage.loginUser = JSON.stringify(user.publish());
     if (!this.#users.some(u => u.equals(user))) {
       this.#users.push(user);
     }
@@ -118,59 +200,103 @@ export class LoginContext {
     localStorage.users = JSON.stringify(this.#users.map(u => u.publish()));
   };
 
+  /**
+   * 
+   */
   constructor() {
+    console.log('>> LoginContext constructor');
     // localStorageにログイン情報が存在する場合はログイン済みにする
-    const ssoUser = localStorage.sso != null ? JSON.parse(localStorage.sso) : null;
-    this.#loginUser = ssoUser?.loginUser;
+    this.#loginUser = this.#userCache = User.restore(localStorage?.loginUser);
     const users = localStorage.users != null ? JSON.parse(localStorage.users) : [];
-    this.#users = users;
+    this.#users = users.map(u => User.restore(u));
   }
 
   /**
    * Sign in : ユーザ検証
-   * @param {*} email 
-   * @param {*} password 
+   * @param {string} email 
+   * @param {string} password rawパスワード
    */
   async signin(email, password) {
     console.log('### LoginContext signin ###');
+    this.#loginUser = this.#userCache;
     if (!!!(this.#loginUser)) {
       return;
     }
-    this.#loginUser = null;
 
-    const [user, ...otherUsers] = this.#users.filter((u) => u.email === email);
-    console.log(user);
+    const [user, ...otherUsers_should_be_empty] = this.#users.filter((u) => u.email === email);
     
-    if (!!!(user)) {
-      throw new Error(`ユーザ ${email} は登録されていません。\n先に Sign up してください。`, 'ユーザ未登録');
+    // assertion
+    if ((otherUsers_should_be_empty || []).length > 0) {
+      throw new Error('Eメールの重複が発生しています');
     }
 
-    user.verify(password);
-
-    this.#updateUser(user);
-  }
-
-  async signup(username, email, password) {
-    const user = await User.create(username, email, password);
-
-    this.#updateUser(user);
-  }
+    try {
+      if (!!!(user)) {
+        throw new Error(`ユーザ ${email} は登録されていません。\n先に Sign up してください。`, 'ユーザ未登録');
+      }
   
+      const password_hash = await hash(password + SALT);
+      user.verify(password_hash);
+  
+      this.#updateUser(user);
+    } catch(err) {
+      this.#loginUser = null;
+      throw err;
+    }
+
+    return user;
+  }
+
+  /**
+   * ユーザ登録
+   * @param {string} username 
+   * @param {string} email 
+   * @param {string} password rawパスワード
+   * @param {boolean} enableSso SSOが有効
+   */
+  async signup(username, email, password, enableSso = false) {
+    const user = await User.create(username, email, password, enableSso);
+
+    this.#updateUser(user);
+  }
+
+  signout() {
+    this.#loginUser = null;
+    location.href = 'signin.html#ssoDisabled';
+  }
+
+  
+  /**
+   * ログイン済み判定
+   * @readonly
+   * @type {boolean}
+   */
   get isLogin() {
-    console.log(this.#users);
-    // return false;
     return this.#loginUser != null;
+  }
+
+  
+  /**
+   * SSO有効判定
+   * @readonly
+   */
+  get isSsoEnabled() {
+    return this.#loginUser.isSsoEnabled;
   }
 
   /**
    * ログインユーザ名
    * @readonly
-   * @type {*}
    */
   get username() {
     return this.#loginUser?.username || guest.username;
   }
 
+  
+  /**
+   * Eメール
+   * @readonly
+   */
   get email() {
     return this.#loginUser?.email || guest.email;
   }
@@ -184,8 +310,3 @@ const guest = await User.create();
 
 // + public object
 // ==========================================================================================   +
-
-/**
- * ログインコンテキスト
- */
-export const loginContext = new LoginContext();

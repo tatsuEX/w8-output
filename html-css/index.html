@@ -29,6 +29,9 @@
         <li class="nav-menuitem snap-right">
           <a href="/html-css/signup.html" class="nav-menulink">Sign up</a>
         </li>
+        <li class="nav-menuitem snap-right">
+          <span id="signoutLink" class="nav-menulink">Sign out</span>
+        </li>
       </ul>
     </nav>
   </header>
@@ -148,13 +151,19 @@
 
   <script type="module">
     import { createToast } from '/html-css/assets/js/toast.mjs';
-    import { loginContext } from '../database/assets/js/authn.mjs';
+    import { LoginContext } from '../database/assets/js/authn.mjs';
+
+    const loginContext = new LoginContext();
 
     window.$Toast = createToast('js-toast', 'toast-template');
 
     loginContext.isLogin;
     $Toast.info(`こんにちは, ${loginContext.username} さん！`);
 
+    document.getElementById('signoutLink').addEventListener('click', (e) => {
+      loginContext.signout();
+      location.href = 'signin.html#ssoDisabled';
+    });
   </script>
 </body>
 </html>
