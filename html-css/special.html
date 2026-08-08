@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Step 9 の課題 | Special</title>
+
+  <link rel="stylesheet" href="/html-css/assets/css/sanitize.css">
+  <link rel="stylesheet" href="/html-css/assets/css/style.css">
+
+  <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+  <script src="/html-css/assets/js/mins.js"></script>
+
+  <style>
+    .flex-container .box {
+      margin: 1px;
+      width: 2em;
+      height: 2em;
+      border-radius: 0;
+      background-color: #aaa;
+      font-weight: bold;
+    }
+    .flex-container .box.unrevealed {
+      border: 3px outset #777;
+      background-color: #ccc;
+    }
+    .flex-container .box.revealed {
+      border: 3px inset #777;
+    }
+
+    .flex-container .box.adjacent-1 { color: blue; }
+    .flex-container .box.adjacent-2 { color: green; }
+    .flex-container .box.adjacent-3 { color: red; }
+    .flex-container .box.adjacent-4 { color: navy; }
+    .flex-container .box.adjacent-5 { color: maroon; }
+    .flex-container .box.adjacent-6 { color: teal; }
+    .flex-container .box.adjacent-7 { color: purple; }
+    .flex-container .box.adjacent-8 { color: #712; }
+  </style>
+</head>
+<body>
+  
+  <header class="header">
+    <nav class="header-nav">
+      <ul class="nav-menubar">
+        <li class="nav-menuitem logo snap-left">
+          <a href="/html-css/index.html" class="nav-menulink" title="ここにロゴがあるとする">TOP</a>
+        </li>
+        <li class="nav-menuitem padding">
+        </li>
+        <li class="nav-menuitem snap-right active" data-authorized="false">
+          <a href="/html-css/special.html" class="nav-menulink">Special</a>
+        </li>
+        <li class="nav-menuitem snap-right">
+          <a href="/html-css/signin.html" class="nav-menulink">Sign in</a>
+        </li>
+        <li class="nav-menuitem snap-right">
+          <a href="/html-css/signup.html" class="nav-menulink">Sign up</a>
+        </li>
+        <li class="nav-menuitem snap-right" data-authorized="false">
+          <span id="signoutLink" class="nav-menulink">Sign out</span>
+        </li>
+      </ul>
+    </nav>
+  </header>
+
+  <main>
+
+    <h1 class="headline">
+      Special
+    </h1>
+
+    <div id="app" class="special-container">
+      {{ info.name }}
+      <div class="flex-container">
+        <div class="column flex-justify-center flex-items-center">
+          <div class="row">
+            横：<input type="number" v-model="options.cols" class="form-input" style="width: 60px;" max="30" @input="initializeBoard"/>
+            　縦：<input type="number" v-model="options.rows" class="form-input" style="width: 60px;" max="30" @input="initializeBoard"/>
+            　地雷：<input type="number" v-model="options.mines" class="form-input" style="width: 80px;" :max="options.cols * options.rows - 1" @input="initializeBoard"/>
+          </div>
+          <div class="row flex-container">
+            <div class="row">
+              <div class="column" style="width: 150px;">
+                残りマス：{{ remainFields - options.mines }}
+              </div>
+              <div class="column flex-justify-center" style="width: 100px;">
+                <button @click="initializeBoard" class="form-button">リセット</button>
+              </div>
+              <div class="column">
+                経過：{{ formattedTime }}
+              </div>
+            </div>
+          </div>
+          <div class="row">
+            <div class="flex-container">
+              <div class="row flex-justify-center" v-for="(fieldRow, rowIndex) in fields" :key="rowIndex">
+                <div class="box" v-for="(field, colIndex) in fieldRow" :key="colIndex" :class="[{ 'revealed': field.revealed, 'unrevealed': !field.revealed }, 'adjacent-' + field.adjacentMines]" @click="revealField(rowIndex, colIndex)" @contextmenu.prevent="field.toggleFlag()">
+                  {{ field.render() }}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </main>
+
+  <div class="toast-container" id="js-toast">
+  </div>
+  <template id="toast-template" class="toast-template">
+    <div class="toast" data-type="">
+      <div class="toast-summary"></div>
+      <div class="toast-message"></div>
+    </div>
+  </template>
+
+  <footer>
+
+  </footer>
+
+  <script>
+    createMinsApp('app');
+  </script>
+
+  <script type="module">
+    import { createToast } from '/html-css/assets/js/toast.mjs';
+    import { LoginContext } from '../database/assets/js/authn.mjs';
+
+    const loginContext = new LoginContext();
+
+    window.$Toast = createToast('js-toast', 'toast-template');
+
+    // 認可 : Sign in 済みの場合は会員メニューを表示
+    window.onload = () => {
+      [...document.querySelectorAll('[data-authorized]')].forEach((el) => {
+        el.dataset.authorized = loginContext.isLogin;
+      });
+    };
+
+    $Toast.info(`こんにちは, ${loginContext.username} さん！`);
+
+    document.getElementById('signoutLink').addEventListener('click', (e) => {
+      // 認可 : Sign out したので会員メニューを非表示
+      loginContext.signout(() => {
+        [...document.querySelectorAll('[data-authorized]')].forEach((el) => {
+          el.dataset.authorized = false;
+        });
+      });
+      location.href = 'signin.html#ssoDisabled';
+    });
+  </script>
+
+</body>
+</html>

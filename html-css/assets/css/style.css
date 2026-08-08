@@ -205,6 +205,12 @@ h3.headline {
   border-radius: 0.5em;
   flex-wrap: nowrap;
 }
+.flex-justify-center {
+  justify-content: center;
+}
+.flex-items-center {
+  align-items: center;
+}
 
 /* ========================================================= */
 /*   Section                                                 */
