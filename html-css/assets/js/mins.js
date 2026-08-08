@@ -57,6 +57,9 @@ function debounced(func, wait) {
         // ゲームボードを初期化する関数を定義（連続実行による過負荷を回避）
         const initializeBoard = debounced(() => {
           const { rows, cols, mines } = options.value;
+          gameTimeHnadler && clearInterval(gameTimeHnadler);
+          status.value = GAME_STATUS.NOT_STARTED;
+          elapsedTime.value = 0;
           remainingMines.value = mines;
           fields.value = createBoard(rows, cols, mines);
         }, 300);
